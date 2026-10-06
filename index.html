@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>특수학급 지원인력 주간 시간표</title>
+    <style>
+        :root {
+            --primary-color: #3b6998;
+            --primary-dark: #2c5279;
+            --secondary-bg: #f8fafc;
+            --border-color: #cbd5e1;
+            --header-bg: #f1f5f9;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', 'Apple SD Gothic Neo', -apple-system, sans-serif;
+            background-color: #edf2f7;
+            color: var(--text-main);
+            margin: 0;
+            padding: 24px 16px;
+        }
+
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 32px 28px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 16px;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: -0.5px;
+            font-weight: 700;
+        }
+
+        .instruction-box {
+            background-color: #eff6ff;
+            border-left: 4px solid var(--primary-color);
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            border-radius: 0 8px 8px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #1e40af;
+        }
+
+        .instruction-box strong {
+            color: #1d4ed8;
+        }
+
+        /* 교사 탭 네비게이션 */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .tab-button {
+            padding: 11px 22px;
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .tab-button.active {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 6px -1px rgba(59, 105, 152, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .tab-title h2 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        /* 테이블 공통 스타일 */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 960px;
+            background: #ffffff;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: var(--header-bg);
+            color: #334155;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: -0.3px;
+        }
+
+        .col-period { width: 15%; min-width: 130px; }
+        .col-time { width: 15%; min-width: 140px; }
+        .col-day { width: 14%; min-width: 120px; }
+
+        .time-text {
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .period-label {
+            font-weight: 600;
+            font-size: 13.5px;
+            line-height: 1.4;
+            color: #1e293b;
+        }
+
+        /* 셀 및 입력 폼 */
+        .cell-container {
+            width: 100%;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+        }
+
+        .editable-cell {
+            width: 100%;
+            min-height: 52px;
+            box-sizing: border-box;
+            padding: 6px 8px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 6px;
+            background-color: #fafafa;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 13.5px;
+            text-align: center;
+            line-height: 1.4;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+            display: block;
+        }
+
+        .editable-cell:hover {
+            border-color: #94a3b8;
+            background-color: #ffffff;
+        }
+
+        .editable-cell:focus {
+            border-color: var(--primary-color);
+            background-color: #ffffff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 105, 152, 0.15);
+        }
+
+        /* 협력강사용 병합 안내 줄 */
+        .info-row-text {
+            background-color: #fff7ed;
+            color: #c2410c;
+            font-weight: 600;
+            font-size: 13.5px;
+            padding: 10px 14px;
+            border: 1px dashed #fdba74;
+            border-radius: 6px;
+            width: 99%;
+            box-sizing: border-box;
+            margin: 0 auto;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .info-row-text:focus {
+            background-color: #ffffff;
+            border-color: #ea580c;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+        }
+
+        /* 하단 액션 버튼 */
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 11px 22px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-save {
+            background-color: #0d9488;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background-color: #0f766e;
+        }
+
+        .btn-print {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-print:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* 인쇄 및 PDF 저장 모드 최적화 */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+                max-width: 100%;
+            }
+            .instruction-box, .tabs, .btn-container {
+                display: none !important;
+            }
+            .tab-content {
+                display: none !important;
+            }
+            .tab-content.active {
+                display: block !important;
+            }
+            .editable-cell {
+                border: 1px solid #e2e8f0 !important;
+                box-shadow: none !important;
+                padding: 4px;
+            }
+            .info-row-text {
+                background-color: #fff7ed !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            th {
+                background-color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            td {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>특수학급 지원인력 주간 시간표</h1>
+    </header>
+
+    <div class="instruction-box">
+        🎨 <strong>학생별 고유 음영 자동 적용:</strong> 칸 안에 내용을 입력할 때 학생 이름을 <strong><code>[민수]</code></strong>, <strong><code>[선우]</code></strong> 처럼 <strong>대괄호<code>[ ]</code>로 감싸서 입력</strong>하세요. 20명의 학생 이름에 맞춰 서로 겹치지 않는 고유한 파스텔톤 배경색이 자동 지정됩니다.
+    </div>
+
+    <!-- 교사별 탭 버튼 -->
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab('teacherA')">지도사 선생님</button>
+        <button class="tab-button" onclick="openTab('teacherB')">강지민 선생님</button>
+        <button class="tab-button" onclick="openTab('teacherC')">서덕민 선생님</button>
+        <button class="tab-button" onclick="openTab('teacherD')">협력강사 선생님</button>
+    </div>
+
+    <!-- 각 선생님별 시간표 렌더링 컨테이너 -->
+    <div id="timetable-container"></div>
+
+    <div class="btn-container">
+        <button class="btn btn-save" onclick="saveAllData()">💾 현재 설정 저장하기</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️️ 현재 시간표 인쇄 / PDF 저장</button>
+    </div>
+</div>
+
+<script>
+    // 1. 기본 식별 정보
+    const teachers = ['teacherA', 'teacherB', 'teacherC', 'teacherD'];
+    const teacherNames = {
+        'teacherA': '지도사 선생님',
+        'teacherB': '강지민 선생님',
+        'teacherC': '서덕민 선생님',
+        'teacherD': '협력강사 선생님'
+    };
+
+    const days = ['월', '화', '수', '목', '금'];
+
+    // 2. 기본 시정표 구조 (초등 특수학급 급식 1·2·3차 분리 체계)
+    const baseSlots = [
+        { id: '1period', label: '1교시', time: '09:00 ~ 09:40', type: 'normal' },
+        { id: '2period', label: '2교시', time: '09:50 ~ 10:30', type: 'normal' },
+        { id: '3period', label: '3교시', time: '10:40 ~ 11:20', type: 'normal' },
+        { id: 'block1', label: '급식1 (1,6학년)<br>4교시 (2,3,4,5학년)', time: '11:20 ~ 12:10<br>11:30 ~ 12:10', type: 'normal' },
+        { id: 'block2', label: '4교시 (1,6학년)<br>급식2 (2,5학년)<br>5교시 (3,4학년)', time: '12:10 ~ 12:50<br>12:10 ~ 13:00<br>12:20 ~ 13:00', type: 'normal' },
+        { id: 'block3', label: '5교시 (1,2,5,6학년)<br>급식3 (3,4학년)', time: '13:00 ~ 13:40<br>13:00 ~ 13:50', type: 'normal' },
+        { id: '6period', label: '6교시', time: '13:50 ~ 14:30', type: 'normal' },
+        { id: 'afterschool', label: '방과후 교실', time: '14:30 ~', type: 'normal' }
+    ];
+
+    // 3. 협력강사 전용 시정표 구조 (1교시·6교시 일반 5칸 분할 및 휴게시간 병합 유지)
+    const instructorSlots = [
+        { id: '1period', label: '1교시', time: '9:00 ~ 09:40', type: 'normal' },
+        { id: '2period', label: '2교시', time: '9:50 ~ 10:30', type: 'normal' },
+        { id: '3period', label: '3교시', time: '10:40 ~ 11:20', type: 'normal' },
+        { id: 'lunch1', label: '급식<br>(1,6학년)', time: '11:20 ~ 12:10', type: 'normal' },
+        { id: 'breaktime', label: '휴게시간', time: '12:10 ~ 12:30', type: 'fullRow', defaultText: '학생 담임교사에게 인계 후 20분 휴게시간(12:10~12:30, 방과후연구실)' },
+        { id: 'period4', label: '4교시<br>(1,6학년)', time: '12:10 ~ 12:50', type: 'normal' },
+        { id: 'period5', label: '5교시<br>(1,2,5,6학년)', time: '13:00 ~ 13:40', type: 'normal' },
+        { id: '6period', label: '6교시', time: '13:50 ~ 14:30', type: 'normal' }
+    ];
+
+    // 4. 최대 20명 대상 겹침 없는 파스텔톤 컬러 팔레트
+    const palette = [
+        { bg: '#fef08a', border: '#fde047' }, // 1. 레몬 노랑
+        { bg: '#bae6fd', border: '#7dd3fc' }, // 2. 하늘색
+        { bg: '#bbf7d0', border: '#86efac' }, // 3. 부드러운 초록
+        { bg: '#fecdd3', border: '#fda4af' }, // 4. 파스텔 핑크
+        { bg: '#e2e8f0', border: '#cbd5e1' }, // 5. 소프트 그레이
+        { bg: '#ddd6fe', border: '#c4b5fd' }, // 6. 라벤더 연보라
+        { bg: '#ffedd5', border: '#fed7aa' }, // 7. 살구빛 피치
+        { bg: '#a7f3d0', border: '#6ee7b7' }, // 8. 연한 민트
+        { bg: '#c7d2fe', border: '#a5b4fc' }, // 9. 페리윙클
+        { bg: '#fde68a', border: '#fcd34d' }, // 10. 골든 앰버
+        { bg: '#fed7aa', border: '#fb923c' }, // 11. 연오렌지
+        { bg: '#fbcfe8', border: '#f472b6' }, // 12. 캔디 로즈
+        { bg: '#d9f99d', border: '#bef264' }, // 13. 라임 그린
+        { bg: '#e9d5ff', border: '#d8b4fe' }, // 14. 연자주 바이올렛
+        { bg: '#ccfbf1', border: '#99f6e4' }, // 15. 청량 틸
+        { bg: '#ffe4e6', border: '#fecdd3' }, // 16. 연홍색
+        { bg: '#e0e7ff', border: '#c7d2fe' }, // 17. 쿨 인디고
+        { bg: '#f3e8ff', border: '#e9d5ff' }, // 18. 소프트 퍼플
+        { bg: '#ecfccb', border: '#d9f99d' }, // 19. 멜론 그린
+        { bg: '#fef9c3', border: '#fef08a' }  // 20. 버터밀크
+    ];
+
+    // 5. 선생님별 시정표 조건 분기
+    function getSlotsForTeacher(teacher) {
+        if (teacher === 'teacherA') {
+            // 지도사 선생님: 방과후 제외
+            return baseSlots.filter(slot => slot.id !== 'afterschool');
+        } else if (teacher === 'teacherB') {
+            // 강지민 선생님: 6교시 제외, 방과후 13:40 ~ 14:20 (40분)
+            return baseSlots
+                .filter(slot => slot.id !== '6period')
+                .map(slot => slot.id === 'afterschool' ? { ...slot, time: '13:40 ~ 14:20 (40분)' } : slot);
+        } else if (teacher === 'teacherC') {
+            // 서덕민 선생님: 방과후 14:20 ~ 15:00 (40분)
+            return baseSlots.map(slot => slot.id === 'afterschool' ? { ...slot, time: '14:20 ~ 15:00 (40분)' } : slot);
+        } else if (teacher === 'teacherD') {
+            // 협력강사 선생님: 전용 시정표
+            return instructorSlots;
+        }
+        return baseSlots;
+    }
+
+    let studentColors = {}; 
+    let colorCounter = 0;
+    let timetableData = {};
+
+    // 6. 기본 데이터 모델 생성
+    teachers.forEach(t => {
+        timetableData[t] = {};
+        const slots = getSlotsForTeacher(t);
+        slots.forEach(slot => {
+            timetableData[t][slot.id] = {};
+            if (slot.type === 'fullRow') {
+                timetableData[t][slot.id]['all'] = slot.defaultText || "";
+            } else {
+                days.forEach(day => { timetableData[t][slot.id][day] = ""; });
+            }
+        });
+    });
+
+    // 7. 브라우저 저장소 데이터 로드
+    function loadData() {
+        const savedData = localStorage.getItem('special_edu_timetable_final');
+        if (savedData) {
+            try {
+                const parsed = JSON.parse(savedData);
+                timetableData = parsed;
+            } catch (e) {
+                console.error("저장 데이터 파싱 오류", e);
+            }
+        }
+    }
+
+    // 8. 학생 이름 고유 색상 매핑 및 스타일 적용
+    function applyStudentInlineStyle(element, text) {
+        const match = text.match(/\[(.*?)\]/);
+        if (!match) {
+            element.style.backgroundColor = "#fafafa";
+            element.style.borderColor = "#cbd5e1";
+            return;
+        }
+        
+        const studentName = match[1].trim();
+        if (!studentName) {
+            element.style.backgroundColor = "#fafafa";
+            element.style.borderColor = "#cbd5e1";
+            return;
+        }
+
+        if (studentColors[studentName] === undefined) {
+            studentColors[studentName] = colorCounter % palette.length;
+            colorCounter++;
+        }
+
+        const colorIndex = studentColors[studentName];
+        element.style.backgroundColor = palette[colorIndex].bg;
+        element.style.borderColor = palette[colorIndex].border;
+    }
+
+    // 9. 전체 시간표 렌더링
+    function renderTimetables() {
+        const container = document.getElementById('timetable-container');
+        container.innerHTML = '';
+
+        teachers.forEach((teacher, tIdx) => {
+            const activeClass = tIdx === 0 ? 'active' : '';
+            const slots = getSlotsForTeacher(teacher);
+
+            let html = `
+                <div id="${teacher}" class="tab-content ${activeClass}">
+                    <div class="tab-title">
+                        <h2>📌 ${teacherNames[teacher]} 주간 지원 시간표</h2>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="col-period">구분 (교시)</th>
+                                    <th class="col-time">지원 시정(시간)</th>
+                                    ${days.map(day => `<th class="col-day">${day}요일</th>`).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            slots.forEach(slot => {
+                html += `<tr>`;
+                html += `<td style="background-color: #f8fafc;"><span class="period-label">${slot.label}</span></td>`;
+                html += `<td style="background-color: #f8fafc;"><span class="time-text">${slot.time}</span></td>`;
+                
+                if (slot.type === 'fullRow') {
+                    const savedVal = timetableData[teacher]?.[slot.id]?.__full__ || timetableData[teacher]?.[slot.id]?.['all'] || slot.defaultText || "";
+                    html += `
+                        <td colspan="${days.length}">
+                            <input 
+                                type="text" 
+                                class="info-row-text" 
+                                data-teacher="${teacher}" 
+                                data-slot="${slot.id}" 
+                                data-type="fullRow"
+                                value="${savedVal}"
+                                oninput="handleFullRowInput(this)"
+                            />
+                        </td>
+                    `;
+                } else {
+                    days.forEach(day => {
+                        const cellVal = timetableData[teacher]?.[slot.id]?.[day] || "";
+                        html += `
+                            <td>
+                                <div class="cell-container">
+                                    <textarea 
+                                        class="editable-cell" 
+                                        data-teacher="${teacher}" 
+                                        data-slot="${slot.id}" 
+                                        data-day="${day}"
+                                        placeholder="-"
+                                        oninput="handleCellInput(this)"
+                                    >${cellVal}</textarea>
+                                </div>
+                            </td>
+                        `;
+                    });
+                }
+                html += `</tr>`;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += html;
+        });
+
+        // 렌더링 완료 후 입력된 값에 따른 학생별 색상 초기 복원
+        document.querySelectorAll('.editable-cell').forEach(cell => {
+            if (cell.value) applyStudentInlineStyle(cell, cell.value);
+        });
+    }
+
+    // 10. 실시간 데이터 입력 처리
+    function handleCellInput(element) {
+        const teacher = element.getAttribute('data-teacher');
+        const slot = element.getAttribute('data-slot');
+        const day = element.getAttribute('data-day');
+        const text = element.value;
+        
+        if (!timetableData[teacher]) timetableData[teacher] = {};
+        if (!timetableData[teacher][slot]) timetableData[teacher][slot] = {};
+        
+        timetableData[teacher][slot][day] = text;
+        applyStudentInlineStyle(element, text);
+    }
+
+    function handleFullRowInput(element) {
+        const teacher = element.getAttribute('data-teacher');
+        const slot = element.getAttribute('data-slot');
+        const text = element.value;
+
+        if (!timetableData[teacher]) timetableData[teacher] = {};
+        if (!timetableData[teacher][slot]) timetableData[teacher][slot] = {};
+        
+        timetableData[teacher][slot]['all'] = text;
+        timetableData[teacher][slot]['__full__'] = text; 
+    }
+
+    // 11. 로컬 저장
+    function saveAllData() {
+        localStorage.setItem('special_edu_timetable_final', JSON.stringify(timetableData));
+        alert('✨ 모든 선생님의 시간표 변경 사항이 안전하게 브라우저에 저장되었습니다.');
+    }
+
+    // 12. 탭 전환
+    function openTab(teacherId) {
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(button => button.classList.remove('active'));
+
+        const targetContent = document.getElementById(teacherId);
+        if (targetContent) targetContent.classList.add('active');
+        
+        const btnIdx = teachers.indexOf(teacherId);
+        if (btnIdx > -1) { 
+            buttons[btnIdx].classList.add('active'); 
+        }
+    }
+
+    // 초기 구동
+    window.onload = function() {
+        loadData();
+        renderTimetables();
+    };
+</script>
+
+</body>
+</html>
